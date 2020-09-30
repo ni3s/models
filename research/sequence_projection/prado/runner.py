@@ -119,8 +119,9 @@ def model_fn_builder(runner_config: Dict[str, Any]):
 
     if mode == tf.estimator.ModeKeys.TRAIN:
       train_op = create_optimizer(total_loss, runner_config)
+      logging_hook = tf.train.LoggingTensorHook({"loss": total_loss}, every_n_iter=10)
       return tf.compat.v1.estimator.tpu.TPUEstimatorSpec(
-          mode=mode, loss=total_loss, train_op=train_op)
+          mode=mode, loss=total_loss, train_op=train_op,training_hooks=[logging_hook])
 
     if mode == tf.estimator.ModeKeys.EVAL:
 
