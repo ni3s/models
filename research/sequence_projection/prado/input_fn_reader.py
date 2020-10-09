@@ -23,6 +23,7 @@ from absl import logging
 
 import tensorflow.compat.v1 as tf
 import tensorflow_datasets as tfds
+import pandas as pd
 
 
 def imdb_reviews(features, _):
@@ -35,6 +36,10 @@ def civil_comments(features, runner_config):
   label_tensor = tf.floor(label_tensor + 0.5)
   return features["text"], label_tensor
 
+def sent_data(features, runner_config):
+  labels = runner_config["model_config"]["labels"]
+  label_tensor = tf.stack([features[label] for label in labels], axis=1)
+  return features["text"], label_tensor
 
 def goemotions(features, runner_config):
   labels = runner_config["model_config"]["labels"]
@@ -101,7 +106,14 @@ def create_input_fn(runner_config: Dict[str, Any], create_projection: Callable,
     """Method to be used for reading the data."""
     assert mode != tf.estimator.ModeKeys.PREDICT
     split = "train" if mode == tf.estimator.ModeKeys.TRAIN else "test"
-    ds = tfds.load(runner_config["dataset"], split=split)
+    # removed for own data
+    #ds = tfds.load(runner_config["dataset"], split=split)
+    # added for own data
+    ds = pd.read_csv('sent_data.csv')
+    dataframe = dataframe.copy()
+    labels = dataframe.pop('text')
+    ds = tf.data.Dataset.from_tensor_slices((dict(dataframe), labels))
+    # till above line is the code change for own data
     ds = ds.batch(params["batch_size"], drop_remainder=drop_remainder)
     ds = ds.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
     ds = ds.shuffle(buffer_size=100)
