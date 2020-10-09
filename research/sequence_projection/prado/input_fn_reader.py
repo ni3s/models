@@ -109,8 +109,8 @@ def create_input_fn(runner_config: Dict[str, Any], create_projection: Callable,
     # removed for own data
     #ds = tfds.load(runner_config["dataset"], split=split)
     # added for own data
-    ds = pd.read_csv('sent_data.csv')
-    dataframe = dataframe.copy()
+    ds = pd.read_csv('/content/sent_data.csv')
+    dataframe = ds.copy()
     labels = dataframe.pop('text')
     ds = tf.data.Dataset.from_tensor_slices((dict(dataframe), labels))
     # till above line is the code change for own data
